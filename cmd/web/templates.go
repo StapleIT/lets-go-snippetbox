@@ -10,8 +10,6 @@ import (
 
 // Define a templateData type to act as the holding structure for
 // any dynamic data that we want to pass to our HTML templates.
-// At the moment it only contains one field, but we'll add more
-// to it as the build progresses.
 type templateData struct {
 	CurrentYear int
 	Snippet     models.Snippet
@@ -19,7 +17,7 @@ type templateData struct {
 	Form        any
 }
 
-// humen date function to be used in the template file
+// human date function to be used in the template file
 // to dynamically convert dates to a specific format
 // this is an example of how template functions can be
 // created in addition to the std library ones

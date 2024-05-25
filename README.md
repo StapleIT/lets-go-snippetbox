@@ -53,4 +53,5 @@ There was no attempt to tag each version of each file when it was refactored or 
  - passing form data with validation
  - refactor validation to use helpers for case where there are many forms and a lot of validation
    - new concept!  the validator.Validator struct is 'embedded' in the snippetCreateForm struct which therefore inherits all the fields and methods of the validator.Validator struct!!
+ - refactor to use 3rd party library "go-playground/form" as a 'form decoder' to automatically parse forms data into our struct!  So you build the struct to represent the data (as we had already) and the 'form' library decodes the form data into it.  The intent is that, with large or many forms, it reduces the amount of code to be written to perform the r.PostForm.Get() on each form field.
  
