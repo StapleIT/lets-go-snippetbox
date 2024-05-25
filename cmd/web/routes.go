@@ -2,9 +2,15 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/justinas/alice"
 )
 
-func (app *application) routes() *http.ServeMux {
+// convert the return type to http.Handler from *http.ServeMux
+func (app *application) routes() http.Handler {
+
+	// this print function was only called once when app was started
+	// fmt.Println("Calling the routes function")
 
 	// mux is of type serveMux which is a struct in the http package which has methods to
 	// process route requests sent to the app's http server
@@ -29,5 +35,16 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
-	return mux
+	// Pass the servemux as the 'next' parameter to the commonHeaders middleware.
+	// Because commonHeaders is just a function, and the function returns a
+	// http.Handler we don't need to do anything else.
+	//return app.recoverPanic(app.logRequest(commonHeaders(mux)))
+
+	// refactor to use 'alice' to manage middleware chaining
+	// create a new 'standard' alice.Chain containing our previous 'before' request
+	// middleware functions
+	standard := alice.New(app.recoverPanic, app.logRequest, commonHeaders)
+
+	// Return the 'standard' middleware chain followed by the servemux.
+	return standard.Then(mux)
 }
