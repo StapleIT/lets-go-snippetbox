@@ -60,4 +60,4 @@ There was no attempt to tag each version of each file when it was refactored or 
 
  ### Server Improvements
  - refactored away from http.ListenAndServe shortcut to a server struct and new srv.ListenAndServe
-
+ - added TLS (https) to server configuration
