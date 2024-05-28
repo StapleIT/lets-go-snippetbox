@@ -58,3 +58,6 @@ There was no attempt to tag each version of each file when it was refactored or 
  ### Sessions (chapter 8)
  - add functionality of 3rd party session store to share data between requests
 
+ ### Server Improvements
+ - refactored away from http.ListenAndServe shortcut to a server struct and new srv.ListenAndServe
+
