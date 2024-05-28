@@ -30,15 +30,26 @@ func (app *application) routes() http.Handler {
 
 	// Use the mux.HandleFunc() method to register the routes and their handlers
 	// Note the handlers are called as methods on the 'app' configuration struct
-	mux.HandleFunc("GET /{$}", app.home)
-	mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
-	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
-	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
-	// Pass the servemux as the 'next' parameter to the commonHeaders middleware.
-	// Because commonHeaders is just a function, and the function returns a
-	// http.Handler we don't need to do anything else.
-	//return app.recoverPanic(app.logRequest(commonHeaders(mux)))
+	// Create a new middleware chain containing the middleware specific to our
+	// dynamic application routes. For now, this chain will only contain the
+	// LoadAndSave session middleware but we'll add more to it later.
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
+
+	// Update these routes to use the new dynamic middleware chain followed by
+	// the appropriate handler function. Alice's Then() and ThenFunc() are the only
+	// two 'then' functions the libraru has.  Then() takes in a http.Handler type and
+	// returns a http.Handler; ThenFunc() takes in a http.HandlerFunc and ALSO returns
+	// a http.Handler type. But it seems that it also coerces the handler function
+	// to http.Handler as it is happy to take it in without error!
+	// Note that because the alice ThenFunc()
+	// method returns a http.Handler, we now no longer register it
+	// with the mux.HandleFunc, we register it with the mux.Handle().
+
+	mux.Handle("GET /{$}", dynamic.Then(http.HandlerFunc(app.home))) // note that this strategy works just as well as ThenFunc below
+	mux.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
+	mux.Handle("GET /snippet/create", dynamic.ThenFunc(app.snippetCreate))
+	mux.Handle("POST /snippet/create", dynamic.ThenFunc(app.snippetCreatePost))
 
 	// refactor to use 'alice' to manage middleware chaining
 	// create a new 'standard' alice.Chain containing our previous 'before' request

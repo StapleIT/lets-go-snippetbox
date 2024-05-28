@@ -44,14 +44,17 @@ There was no attempt to tag each version of each file when it was refactored or 
  - the render() function is adapted to first render to a buffer, check if an error occurs and only render to client if no error triggered, otherwise raise our serverError.
  - add a custom dynamic template function (humanDate)
 
-### Middleware!
+### Middleware! (chapter 6)
  - used like 'before request' or 'after request' in some frameworks
  - for 'before all requests' the midleware must happen before the mux. To do this we must change the route.go signature to http.Handler from *http.ServeMux and return the middleware instead of mux.
  - refactor to use 'alice' library which chains middleware functions more easily.  It wasn't that difficult before since it was just a case of each middleware calling the next before, but 'alice' can build a slice of handlers and automatically chain them.
 
- ### Forms
+ ### Forms (chapter 7)
  - passing form data with validation
  - refactor validation to use helpers for case where there are many forms and a lot of validation
    - new concept!  the validator.Validator struct is 'embedded' in the snippetCreateForm struct which therefore inherits all the fields and methods of the validator.Validator struct!!
  - refactor to use 3rd party library "go-playground/form" as a 'form decoder' to automatically parse forms data into our struct!  So you build the struct to represent the data (as we had already) and the 'form' library decodes the form data into it.  The intent is that, with large or many forms, it reduces the amount of code to be written to perform the r.PostForm.Get() on each form field.
- 
+
+ ### Sessions (chapter 8)
+ - add functionality of 3rd party session store to share data between requests
+
