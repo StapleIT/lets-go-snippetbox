@@ -2,9 +2,36 @@
 
 This is the code created while following along to the book "Let's Go" by Alex Edwards.
 
-There was no attempt to tag each version of each file when it was refactored or modified during the course.  The version here is the latest version at any point of time depending on where I was up to in the book.
+## Code Structure
+
+### cmd/web
+This is the main routing and business logic functionality of the app
+#### main.go
+Is the main entry point and contains func main()
+#### handlers.go
+Contains handlers which perform the required logic etc for a particular route
+#### routes.go
+Contains the routes.  Handle() or HandleFunc() are used to map the route url to a particular handler function
+#### middleware.go
+Contains functions that return an Handler type. Internally they execute some additional logic before or after the route handler is executed.  Middleware functions can be chained because they return the same type as a handler.
+#### helpers.go
+Contains various little functions which are used in the handlers e.g. ServerError, ClientError, template caching, decode posted form data etc
+#### templates.go
+Contains some functions specifically related to templates including newTemplateCache() and human readable date function
+### cmd/internal/models
+The SQL model strunctures and methods on those structures perform DB CRUD operations
+### cmd/internal/validator
+Contains validator.go which has validation functions for request form fields and other
+### ui/html
+HTML template for base.html
+#### ui/html/pages
+HTML templates for we pages
+#### ui/html/partials
+HTML partials e.g. nav.html
+
 
 ## Major conceptual refactors:
+There was no attempt to tag each version of each file when it was refactored or modified during the course.  The version here is the latest version at any point of time depending on where I was up to in the book.
 
 ### Project Structure (section 2.7):  
  - splitting handler code out of main.go into handlers.go
@@ -58,6 +85,14 @@ There was no attempt to tag each version of each file when it was refactored or 
  ### Sessions (chapter 8)
  - add functionality of 3rd party session store to share data between requests
 
- ### Server Improvements
+ ### Server Improvements (chapter 9)
  - refactored away from http.ListenAndServe shortcut to a server struct and new srv.ListenAndServe
  - added TLS (https) to server configuration
+
+ ### User Authentication
+ - create users model in db
+ - passworc encryption using bcrypt
+ - validate user input and authenticate
+ - authorise using isAuthenticated to determine if user is logged in
+ - add middleware to prevent un-authenticated users from entering restricted URLs directly
+ - refactor middleware chains in routes.go to isolate protected and unprotected routes

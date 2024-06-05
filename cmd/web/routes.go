@@ -34,7 +34,7 @@ func (app *application) routes() http.Handler {
 	// Create a new middleware chain containing the middleware specific to our
 	// dynamic application routes. For now, this chain will only contain the
 	// LoadAndSave session middleware but we'll add more to it later.
-	dynamic := alice.New(app.sessionManager.LoadAndSave)
+	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf)
 
 	// Update these routes to use the new dynamic middleware chain followed by
 	// the appropriate handler function. Alice's Then() and ThenFunc() are the only
@@ -48,9 +48,20 @@ func (app *application) routes() http.Handler {
 
 	mux.Handle("GET /{$}", dynamic.Then(http.HandlerFunc(app.home))) // note that this strategy works just as well as ThenFunc below
 	mux.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
-	mux.Handle("GET /snippet/create", dynamic.ThenFunc(app.snippetCreate))
-	mux.Handle("POST /snippet/create", dynamic.ThenFunc(app.snippetCreatePost))
 
+	// add handlers for user registration and login
+	mux.Handle("GET /user/signup", dynamic.ThenFunc(app.userSignup))
+	mux.Handle("POST /user/signup", dynamic.ThenFunc(app.userSignupPost))
+	mux.Handle("GET /user/login", dynamic.ThenFunc(app.userLogin))
+	mux.Handle("POST /user/login", dynamic.ThenFunc(app.userLoginPost))
+
+	// Protected (authenticated-only) application routes, using a new "protected"
+	// middleware chain which includes the requireAuthentication middleware.
+	protected := dynamic.Append(app.requireAuthentication)
+
+	mux.Handle("GET /snippet/create", protected.ThenFunc(app.snippetCreate))
+	mux.Handle("POST /snippet/create", protected.ThenFunc(app.snippetCreatePost))
+	mux.Handle("POST /user/logout", protected.ThenFunc(app.userLogoutPost))
 	// refactor to use 'alice' to manage middleware chaining
 	// create a new 'standard' alice.Chain containing our previous 'before' request
 	// middleware functions
