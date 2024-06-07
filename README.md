@@ -19,7 +19,9 @@ Contains various little functions which are used in the handlers e.g. ServerErro
 #### templates.go
 Contains some functions specifically related to templates including newTemplateCache() and human readable date function
 ### cmd/internal/models
-The SQL model strunctures and methods on those structures perform DB CRUD operations
+The SQL model structures and methods on those structures perform DB CRUD operations
+### errors.go
+this is a set of functions for capturing errors generated when performing CRUD operations
 ### cmd/internal/validator
 Contains validator.go which has validation functions for request form fields and other
 ### ui/html
@@ -89,10 +91,22 @@ There was no attempt to tag each version of each file when it was refactored or 
  - refactored away from http.ListenAndServe shortcut to a server struct and new srv.ListenAndServe
  - added TLS (https) to server configuration
 
- ### User Authentication
+ ### User Authentication (chapter 10)
  - create users model in db
  - passworc encryption using bcrypt
  - validate user input and authenticate
  - authorise using isAuthenticated to determine if user is logged in
  - add middleware to prevent un-authenticated users from entering restricted URLs directly
  - refactor middleware chains in routes.go to isolate protected and unprotected routes
+
+ ### CSRF tokens (chapter 10)
+ - introduce middleware with 'noSurf' package
+
+ ### Request Context (chapter 11)
+ - the 'scs' package already uses context under the hood, but we have been storing authentication data (user ID of authenticated user) in the session data
+ - refactor to use request context to store "authenticatedUserID" (true if the ID exists in the DB) in the request context
+ - then put this in an authenticate handler which is called each request and passes the user's status to other handlers. This prevents us querying the database for user ID multiple times during the life of one request
+
+ ### File Embedding (chapter 12)
+ - refactor code to use the //go:embed directive to embed static files such as templates
+ - this means the files are bundled in with the go binary making it truly portable; without this, the go binary needs to have access to the application's files structure AND the location of the binary relative to the app folder structure is critical (don't move it after creating it!)
