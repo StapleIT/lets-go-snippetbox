@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/StapleIT/lets-go-snippetbox/ui"
+
 	"github.com/justinas/alice"
 )
 
@@ -16,18 +18,17 @@ func (app *application) routes() http.Handler {
 	// process route requests sent to the app's http server
 	mux := http.NewServeMux()
 
-	// Create a file server which serves files out of the "./ui/static" directory.
-	// Note that the path given to the http.Dir function is relative to the project
-	// directory root.
+	// Use the http.FileServerFS() function to create a HTTP handler which
+	// serves the embedded files in ui.Files. It's important to note that our
+	// static files are contained in the "static" folder of the ui.Files
+	// embedded filesystem. So, for example, our CSS stylesheet is located at
+	// "static/css/main.css". This means that we no longer need to strip the
+	// prefix from the request URL -- any requests that start with /static/ can
+	// just be passed directly to the file server and the corresponding static
+	// file will be served (so long as it exists).
+	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
 
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-
-	// Use the mux.Handle() function to register the file server as the handler for
-	// all URL paths that start with "/static/". For matching paths, we strip the
-	// "/static" prefix before the request reaches the file server.
-
-	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
-
+	mux.Handle("GET /ping", http.HandlerFunc(ping))
 	// Use the mux.HandleFunc() method to register the routes and their handlers
 	// Note the handlers are called as methods on the 'app' configuration struct
 

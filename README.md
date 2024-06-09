@@ -110,3 +110,12 @@ There was no attempt to tag each version of each file when it was refactored or 
  ### File Embedding (chapter 12)
  - refactor code to use the //go:embed directive to embed static files such as templates
  - this means the files are bundled in with the go binary making it truly portable; without this, the go binary needs to have access to the application's files structure AND the location of the binary relative to the app folder structure is critical (don't move it after creating it!)
+
+ ### Testing (chapter 13)
+ - Started adding tests against functions aleady created
+ - Immediate refactor: created assert.Equal to abstract away the "got != want ..." check
+ - test handlers using net/http/httptest.ResponseRecorder to impersonate the response writer (w) and the  interrogate it for the expected response
+ - Use http.TestServer and it's associated methods to immmitate a real server to do end-to-end tests on the real code stack
+ - Refactored to have the database models as used in the "application" structure be represented by interface types; this makes it easier to mock out the database by simply replacing the models with a struct with required methods to match the interface type!
+ - use Get and PostForm methods on the test server to emmulate client user actions in order to test HTML forms including checking CSRF token passing.
+ - finally looks at set-up, tear down of test version of MySQL database for integration tests.  I did not create these integration tests in this repo
